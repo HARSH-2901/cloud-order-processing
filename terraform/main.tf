@@ -52,16 +52,43 @@ resource "azurerm_function_app_flex_consumption" "order_processor" {
   location            = var.function_location
   service_plan_id     = azurerm_service_plan.function.id
 
-  storage_container_type = "blobContainer"
+  storage_container_type     = "blobContainer"
   storage_container_endpoint = "${azurerm_storage_account.function.primary_blob_endpoint}${azurerm_storage_container.function_deployment.name}"
 
   storage_authentication_type = "StorageAccountConnectionString"
   storage_access_key          = azurerm_storage_account.function.primary_access_key
 
   runtime_name    = "dotnet-isolated"
-  runtime_version = "9.0"
+  runtime_version = "10.0"
 
   maximum_instance_count = 10
 
-  site_config {}
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.function.id]
+  }
+
+  app_settings = {
+    "ServiceBusConnectionString__fullyQualifiedNamespace" = "${azurerm_servicebus_namespace.main.name}.servicebus.windows.net"
+  }
+
+  site_config {
+    application_insights_connection_string = azurerm_application_insights.function.connection_string
+  }
+}
+resource "azurerm_application_insights" "function" {
+  name                = "${var.function_app_name}-insights"
+  location            = var.function_location
+  resource_group_name = azurerm_resource_group.main.name
+  application_type    = "web"
+}
+resource "azurerm_role_assignment" "function_servicebus_receiver" {
+  scope                = azurerm_servicebus_queue.orders.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = azurerm_user_assigned_identity.function.principal_id
+}
+resource "azurerm_user_assigned_identity" "function" {
+  name                = "${var.function_app_name}-identity"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = var.function_location
 }

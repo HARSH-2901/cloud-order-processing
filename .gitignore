@@ -12,6 +12,9 @@
 crash.log
 *.tfvars
 *.tfvars.json
+# Terraform plan files
+tfplan
+*.tfplan
 
 # IDE / OS
 .vs/
