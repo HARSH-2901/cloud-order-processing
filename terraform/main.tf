@@ -70,6 +70,8 @@ resource "azurerm_function_app_flex_consumption" "order_processor" {
 
   app_settings = {
     "ServiceBusConnectionString__fullyQualifiedNamespace" = "${azurerm_servicebus_namespace.main.name}.servicebus.windows.net"
+    "ServiceBusConnectionString__credential"              = "managedidentity"
+    "ServiceBusConnectionString__clientId"                = azurerm_user_assigned_identity.function.client_id
   }
 
   site_config {
