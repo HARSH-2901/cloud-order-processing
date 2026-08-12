@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore Order API
+        run: dotnet restore OrderApi/OrderApi.csproj
+
+      - name: Build Order API
+        run: dotnet build OrderApi/OrderApi.csproj --no-restore --configuration Release
+
+      - name: Restore Order Processor
+        run: dotnet restore OrderProcessor/OrderProcessor.csproj
+
+      - name: Build Order Processor
+        run: dotnet build OrderProcessor/OrderProcessor.csproj --no-restore --configuration Release
