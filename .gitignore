@@ -1,0 +1,19 @@
+# .NET build output
+**/bin/
+**/obj/
+
+# Azure Functions local secrets
+**/local.settings.json
+
+# Terraform working directory and state
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+
+# IDE / OS
+.vs/
+.vscode/
+.DS_Store
